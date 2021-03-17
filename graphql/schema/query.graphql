@@ -1,0 +1,16 @@
+"""
+The query root of the GraphQL interface.
+"""
+type Query {
+    """
+    Get a task by it's ID.
+    """
+    task(
+        idx: ID!
+    ): Task
+
+    """
+    Get all tasks.
+    """
+    tasks: [Task]!
+}
