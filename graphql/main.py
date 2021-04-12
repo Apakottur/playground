@@ -15,7 +15,7 @@ class TaskManager:
     def __init__(self):
         self._running_idx = 0
 
-        self._tasks_by_id = {}
+        self._tasks_by_id: dict[str, TaskModel] = {}
 
     def _get_new_index(self):
         self._running_idx += 1

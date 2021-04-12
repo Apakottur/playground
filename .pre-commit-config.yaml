@@ -84,4 +84,4 @@ repos:
       - id: mypy
         name: mypy
         args: [--config-file, linters/mypy.ini]
-        additional_dependencies: []
+        additional_dependencies: [fastapi]
