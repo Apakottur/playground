@@ -1,32 +1,32 @@
-type Task implements Node{
-    idx: ID!
-    description: String
+type Task implements Node {
+  idx: ID!
+  description: String
 }
 
 input AddTaskInput {
-    description: String!
+  description: String!
 }
 
-type AddTaskPayload implements Response{
-    ok: Boolean!
-    task: Task!
+type AddTaskPayload implements Response {
+  ok: Boolean!
+  task: Task!
 }
 
 input EditTaskInput {
-    idx: ID!
-    description: String!
+  idx: ID!
+  description: String!
 }
 
-type EditTaskPayload implements Response{
-    ok: Boolean!
-    task: Task!
+type EditTaskPayload implements Response {
+  ok: Boolean!
+  task: Task!
 }
 
 input DeleteTaskInput {
-    description: String!
+  description: String!
 }
 
-type DeleteTaskPayload implements Response{
-    ok: Boolean!,
-    task: Task!
+type DeleteTaskPayload implements Response {
+  ok: Boolean!
+  task: Task!
 }

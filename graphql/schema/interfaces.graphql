@@ -2,13 +2,12 @@
 An object with an ID.
 """
 interface Node {
-    """
-    ID of the object.
-    """
-    idx: ID!
+  """
+  ID of the object.
+  """
+  idx: ID!
 }
 
 interface Response {
-    ok: Boolean!
+  ok: Boolean!
 }
-

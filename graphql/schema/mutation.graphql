@@ -2,15 +2,9 @@
 The root query for implementing GraphQL mutations.
 """
 type Mutation {
-    addTask(
-        input: AddTaskInput!
-    ): AddTaskPayload
+  addTask(input: AddTaskInput!): AddTaskPayload
 
-    editTask(
-        input: EditTaskInput!
-    ): EditTaskPayload
+  editTask(input: EditTaskInput!): EditTaskPayload
 
-    deleteTask(
-        input: DeleteTaskInput!
-    ): DeleteTaskPayload
+  deleteTask(input: DeleteTaskInput!): DeleteTaskPayload
 }
