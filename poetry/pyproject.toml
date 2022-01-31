@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "shared"
+version = "1.0.0"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.10" # Any version of Python 3.10
+shpyx = "0.0.8"
+
+
+[tool.poetry.dev-dependencies]
+mypy = "0.931"
+
+[build-system]
+requires = ["poetry==1.1.12"]
+build-backend = "poetry.masonry.api"
