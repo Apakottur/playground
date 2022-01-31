@@ -10,6 +10,6 @@ jobs:
   updater:
     runs-on: ubuntu-latest
     steps:
-      - uses: Apakottur/action-poetry-package-update@v0.0.2
+      - uses: Apakottur/action-poetry-package-update@v0.0.3
         with:
           base-branch: master
