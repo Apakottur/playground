@@ -6,8 +6,8 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.10" # Any version of Python 3.10
+uvicorn = { version = "0.17.0.post1", extras = ["standard"] }
 shpyx = "0.0.8"
-
 
 [tool.poetry.dev-dependencies]
 mypy = "0.931"
