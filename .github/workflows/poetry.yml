@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: Apakottur/action-poetry-package-update@main
         with:
-          base-branch: main
+          base-branch: ${{ github.head_ref || github.ref_name }}
