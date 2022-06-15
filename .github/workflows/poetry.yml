@@ -2,7 +2,7 @@ name: Test Poetry updater
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
 
   workflow_dispatch:
 
@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: Apakottur/action-poetry-package-update@main
         with:
-          base-branch: master
+          base-branch: main
