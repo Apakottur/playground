@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 6666:5432
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=a
+      - POSTGRES_PASSWORD=a
+      - POSTGRES_DB=a
