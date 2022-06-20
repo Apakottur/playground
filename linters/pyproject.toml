@@ -1,19 +1,6 @@
-[build-system]
-requires = [
-    "setuptools",
-    "wheel",
-]
-build-backend = "setuptools.build_meta"
-
 [tool.black]
-
-line-length=120
-target-version = ['py39']
-
-# Note: this flag is only introduced in https://github.com/psf/black/pull/1824, which is not yet part of the most
-# recent black release. It's added here so that once we upgrade to the next release, this behavior is immediately
-# enforced.
-skip-magic-trailing-comma = true
+line-length = 120
+target-version = [ 'py310' ]
 
 [tool.isort]
 line_length = 120

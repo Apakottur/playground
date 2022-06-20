@@ -1,8 +1,7 @@
 import asyncio
 
-from sqlalchemy import Integer, insert, sql
-from sqlalchemy import Column, String
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy import Column, Integer, String, insert, sql
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 

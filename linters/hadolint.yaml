@@ -1,0 +1,24 @@
+# Failure threshold should be in (error | warning | info | style | ignore | none)
+failure-threshold: style
+
+# Rules to ignore.
+ignored:
+  - DL3007 # Using latest is prone to errors if the image will ever update.
+  - DL3008 # Pin versions in apt get install.
+  - DL3016 # Pin versions in npm.
+  - DL3018 # Pin versions in apk add.
+  - DL3059 # Multiple consecutive `RUN` instructions. Consider consolidation.
+  - DL4006 # Set the SHELL option -o pipefail before RUN with a pipe in it.
+
+# Custom severity of rules.
+override:
+  error: []
+  warning: []
+  info: []
+  style: []
+
+# When strict labels is enabled, but no label schema is specified, hadolint will warn if any label is present.
+strict-labels: true
+
+# Trusted registries.
+trustedRegistries: [hub.docker.com]
