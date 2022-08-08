@@ -1,0 +1,11 @@
+version: "3.9"
+
+x-config: &default-config
+  env_file:
+    - shared/dev.env.template
+
+services:
+  test:
+    entrypoint: echo 2
+    env_file:
+      - success.env

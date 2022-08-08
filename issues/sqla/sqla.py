@@ -1,6 +1,6 @@
 import asyncio
 
-from sqlalchemy import BigInteger, Column, select, sql
+from sqlalchemy import BigInteger, Column, select, sql, tuple_
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,6 +29,16 @@ meta_engine = create_async_engine(_META_DB_STRING, isolation_level="AUTOCOMMIT")
 base = declarative_base()
 
 
+async def _recreate_db():
+    async with meta_engine.connect() as conn:
+        await conn.execute(sql.text(f"DROP DATABASE IF EXISTS {_DB_NAME}"))
+        await conn.execute(sql.text(f"CREATE DATABASE {_DB_NAME}"))
+
+    async with engine.connect() as conn:
+        await conn.run_sync(base.metadata.create_all)
+        await conn.commit()
+
+
 @declarative_mixin
 class HasNumber:
     @declared_attr
@@ -45,38 +55,28 @@ class Actor(base, HasNumber):
 big_int = 2**31 + 123
 
 
-@listens_for(Session, "do_orm_execute")
-def _do_orm_execute(orm_execute_state: ORMExecuteState) -> None:
-    if orm_execute_state.is_select:
-        if orm_execute_state.is_column_load or orm_execute_state.is_relationship_load:
-            return
-
-        # This breaks the query:
-        orm_execute_state.statement = orm_execute_state.statement.options(
-            with_loader_criteria(HasNumber, lambda cls: cls.number == 2**31 + 123, include_aliases=True)
-        )
-
-        # This is a hack around it that works:
-        orm_execute_state.statement = orm_execute_state.statement.options(
-            *(
-                with_loader_criteria(
-                    subclass,
-                    subclass.number == big_int,
-                    include_aliases=True,
-                )
-                for subclass in HasNumber.__subclasses__()
-            )
-        )
-
-
-async def _recreate_db():
-    async with meta_engine.connect() as conn:
-        await conn.execute(sql.text(f"DROP DATABASE IF EXISTS {_DB_NAME}"))
-        await conn.execute(sql.text(f"CREATE DATABASE {_DB_NAME}"))
-
-    async with engine.connect() as conn:
-        await conn.run_sync(base.metadata.create_all)
-        await conn.commit()
+# @listens_for(Session, "do_orm_execute")
+# def _do_orm_execute(orm_execute_state: ORMExecuteState) -> None:
+#     if orm_execute_state.is_select:
+#         if orm_execute_state.is_column_load or orm_execute_state.is_relationship_load:
+#             return
+#
+#         # This breaks the query:
+#         orm_execute_state.statement = orm_execute_state.statement.options(
+#             with_loader_criteria(HasNumber, lambda cls: cls.number == big_int, include_aliases=True)
+#         )
+#
+#         # This is a hack around it that works:
+#         # orm_execute_state.statement = orm_execute_state.statement.options(
+#         #     *(
+#         #         with_loader_criteria(
+#         #             subclass,
+#         #             subclass.number == big_int,
+#         #             include_aliases=True,
+#         #         )
+#         #         for subclass in HasNumber.__subclasses__()
+#         #     )
+#         # )
 
 
 async def _run():
@@ -84,14 +84,29 @@ async def _run():
 
     session = sessionmaker(engine, class_=AsyncSession)()
 
-    session.add(Actor(id=big_int, number=big_int))
+    session.add(Actor(id=big_int))
     await session.commit()
 
-    s = select(Actor.id).where(Actor.id == big_int)
+    s = select(Actor.id).where(tuple_(Actor.id, Actor.id) == tuple_(big_int, big_int))
     result = await session.execute(s)
     assert result.scalars().all() == [big_int]
 
     await session.commit()
+
+
+# async def _run():
+#     await _recreate_db()
+#
+#     session = sessionmaker(engine, class_=AsyncSession)()
+#
+#     session.add(Actor(id=big_int, number=big_int))
+#     await session.commit()
+#
+#     s = select(Actor.id).where(Actor.id == big_int)
+#     result = await session.execute(s)
+#     assert result.scalars().all() == [big_int]
+#
+#     await session.commit()
 
 
 def main():

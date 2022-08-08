@@ -2,4 +2,6 @@ services:
   test:
     build:
       context: .
-    entrypoint: echo 1
+    volumes:
+      - ./files:/tmp/files
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,12 @@
+version: "3.9"
+
+x-config: &default-config
+  labels:
+    - banana
+
+services:
+  test:
+    <<: *default-config
+    build:
+      context: .
+    entrypoint: echo 1
