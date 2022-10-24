@@ -1,0 +1,15 @@
+name: Test Poetry updater
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  updater:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo ${{ github.ref }}
+          echo ${{ github.sha }}
+          echo ${{ github.ref_name }}
