@@ -1,14 +1,20 @@
 import asyncio
+from typing import override
 
-from sqlalchemy import Column, Integer, String, insert, sql
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import sqlalchemy.orm.decl_api
+import sqlalchemy.orm.decl_base
+import sqlalchemy.orm.loading
+import sqlalchemy.orm.properties
+import sqlalchemy.sql.sqltypes
+from sqlalchemy import BigInteger, func, insert, select, sql
+from sqlalchemy.engine.interfaces import Dialect
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 _HOST = "localhost"
 _PORT = 2345
-_USERNAME = "inch"
-_PASSWORD = "inch"
+_USERNAME = ""
+_PASSWORD = ""
 _DB_NAME = "sqla_test"
 _META_DB_NAME = "postgres"
 
@@ -18,14 +24,37 @@ _META_DB_STRING = f"postgresql+asyncpg://{_USERNAME}:{_PASSWORD}@{_HOST}:{_PORT}
 engine = create_async_engine(_DB_STRING)
 meta_engine = create_async_engine(_META_DB_STRING, isolation_level="AUTOCOMMIT")
 
-base = declarative_base()
+
+class BigInt(int):
+    # Proprietary type with some custom logic.
+    pass
 
 
-class Actor(base):
+class DbBase(DeclarativeBase):
+    pass
+
+
+class _BigIntIdColumn(sqlalchemy.types.TypeDecorator[BigInt]):
+    impl = BigInteger
+
+    cache_ok = True
+
+    @property
+    def python_type(self) -> type[BigInt]:
+        return BigInt
+
+    @override
+    def process_result_value(self, value: int | None, dialect: Dialect) -> BigInt | None:
+        if value is None:
+            return None
+        else:
+            return BigInt(value)
+
+
+class Actor(DbBase):
     __tablename__ = "actor"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    id: Mapped[BigInt] = mapped_column(_BigIntIdColumn, primary_key=True)
 
 
 async def _recreate_db():
@@ -34,42 +63,38 @@ async def _recreate_db():
         await conn.execute(sql.text(f"CREATE DATABASE {_DB_NAME}"))
 
     async with engine.connect() as conn:
-        await conn.run_sync(base.metadata.create_all)
+        await conn.run_sync(DbBase.metadata.create_all)
         await conn.commit()
 
 
 async def _run():
     await _recreate_db()
 
-    session = sessionmaker(engine, class_=AsyncSession)()
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
 
-    # Working syntax.
-    result = await session.execute(
-        insert(Actor)
-        .values(
-            [
-                {"id": 1, "name": "first"},
-                {"id": 2, "name": "second"},
-            ]
+    async with async_session() as session:
+        b = BigInt(195471636076429315)
+
+        # Works.
+        result = await session.execute(
+            insert(Actor)
+            .values(
+                [
+                    {"id": b},
+                ]
+            )
+            .returning(Actor.id),
         )
-        .returning(Actor.id),
-    )
-    assert result.scalars().all() == [1, 2]
+        assert result.scalars().all() == [b]
 
-    # Broken syntax.
-    result = await session.execute(
-        insert(Actor).returning(Actor.id),
-        [
-            {"id": 3, "name": "first"},
-            {"id": 4, "name": "second"},
-        ],
-    )
-    assert result.scalars().all() == [3, 4]  # Fails!
+        # Works.
+        result = await session.execute(select(Actor.id).where(Actor.id == b))
+        assert result.scalars().all() == [b]
 
-
-def main():
-    asyncio.run(_run())
+        # Doesn't work.
+        result = await session.execute(select(Actor.id).where(Actor.id == func.least(b, b)))
+        assert result.scalars().all() == [b]
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(_run())
