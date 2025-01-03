@@ -1,0 +1,11 @@
+changelog:
+  categories:
+    - title: Backend
+      labels:
+        - backend
+    - title: Client
+      labels:
+        - client
+    - title: Other
+      labels:
+        - "*"
